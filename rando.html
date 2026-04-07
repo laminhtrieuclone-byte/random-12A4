@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Random Số + Tên 12A4</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      background: linear-gradient(135deg, #74ebd5, #ACB6E5);
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      color: white;
+    }
+
+    button {
+      padding: 12px 25px;
+      font-size: 18px;
+      border: none;
+      border-radius: 10px;
+      background: #ff7b00;
+      color: white;
+      cursor: pointer;
+      transition: 0.3s;
+      margin: 5px;
+    }
+
+    button:hover {
+      background: #ff9500;
+    }
+
+    #result {
+      margin: 20px;
+      font-size: 26px;
+      font-weight: bold;
+      color: white;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 10px;
+      max-width: 600px;
+      margin: auto;
+    }
+
+    .number {
+      background: white;
+      padding: 12px;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 16px;
+      transition: 0.3s;
+    }
+
+    .used {
+      background: black;
+      color: white;
+    }
+
+    #usedList {
+      max-width: 600px;
+      margin: 20px auto;
+      text-align: left;
+      background: rgba(255,255,255,0.2);
+      padding: 10px;
+      border-radius: 10px;
+      color: white;
+    }
+
+    #usedList h2 {
+      margin-top: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎲 Random Số + Tên Lớp 12A4</h1>
+
+  <button onclick="startSpin()">Random</button>
+  <button onclick="resetAll()">Reset</button>
+
+  <div id="result">Chưa random</div>
+
+  <div class="grid" id="grid"></div>
+
+  <div id="usedList">
+    <h2>Những người đã random:</h2>
+    <ul id="usedNames"></ul>
+  </div>
+
+  <script>
+    const numberNames = [
+      "1: An", "2: Bình", "3: Chi", "4: Dũng", "5: Hà", "6: Hải",
+      "7: Hùng", "8: Hương", "9: Khánh", "10: Lan", "11: Linh", "12: Long",
+      "13: Mai", "14: Minh", "15: Nam", "16: Ngọc", "17: Nhung", "18: Phong",
+      "19: Phúc", "20: Quân", "21: Quỳnh", "22: Sơn", "23: Trang", "24: Trung",
+      "25: Tú", "26: Tuấn", "27: Uyên", "28: Việt", "29: Yến", "30: Bảo",
+      "31: Đạt", "32: Đức", "33: Hậu", "34: Hiếu", "35: Khoa", "36: Lộc"
+    ];
+
+    let remaining = [...numberNames];
+    let used = [];
+
+    const grid = document.getElementById("grid");
+    const usedNames = document.getElementById("usedNames");
+    const resultDiv = document.getElementById("result");
+
+    // Tạo grid
+    numberNames.forEach((item, index) => {
+      const div = document.createElement("div");
+      div.classList.add("number");
+      div.id = "num-" + (index + 1);
+      div.innerText = item;
+      grid.appendChild(div);
+    });
+
+    let spinning = false;
+
+    function startSpin() {
+      if (spinning) return; // đang quay thì không bấm được
+      if (remaining.length === 0) {
+        resultDiv.innerText = "Hết người để random!";
+        return;
+      }
+
+      spinning = true;
+      let spinIndex = 0;
+      let spinInterval = 50; // tốc độ chạy số (ms)
+      let currentHighlight = null;
+
+      // Tăng dần tốc độ chậm lại để tạo hiệu ứng dừng
+      const intervalId = setInterval(() => {
+        if (currentHighlight !== null) {
+          document.getElementById("num-" + currentHighlight).classList.remove("used");
+        }
+
+        // Chọn số ngẫu nhiên từ remaining
+        const randomIndex = Math.floor(Math.random() * remaining.length);
+        const chosen = remaining[randomIndex];
+        const numberId = parseInt(chosen.split(":")[0]);
+
+        document.getElementById("num-" + numberId).classList.add("used");
+        resultDiv.innerText = chosen;
+        currentHighlight = numberId;
+
+        // Giảm tốc độ dần
+        spinIndex++;
+        if (spinIndex > 30) { // dừng sau khoảng 30 lần đổi số
+          clearInterval(intervalId);
+
+          // Chốt số cuối cùng
+          remaining.splice(randomIndex, 1);
+          used.push(chosen);
+          updateUsedList();
+
+          spinning = false;
+        }
+      }, spinInterval);
+    }
+
+    function updateUsedList() {
+      usedNames.innerHTML = "";
+      used.forEach(item => {
+        const li = document.createElement("li");
+        li.innerText = item;
+        usedNames.appendChild(li);
+      });
+    }
+
+    function resetAll() {
+      remaining = [...numberNames];
+      used = [];
+      resultDiv.innerText = "Chưa random";
+
+      numberNames.forEach((_, index) => {
+        document.getElementById("num-" + (index + 1)).classList.remove("used");
+      });
+
+      updateUsedList();
+      spinning = false;
+    }
+  </script>
+
+</body>
+</html>
